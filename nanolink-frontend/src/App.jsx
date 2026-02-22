@@ -1,10 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./component/layout/Navbar";
 import Login from "./pages/Login";
-
-// TEMP
-const Home = () => <div className="p-10 text-2xl">Welcome to NanoLink!</div>;
-const Register = () => <div className="p-10 text-2xl">Create your account</div>;
+import Register from "./pages/Register";
+import SocialAuth from "./pages/SocialAuth";
 
 function App() {
   return (
@@ -13,9 +11,14 @@ function App() {
         <Navbar />
         <main>
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route
+              path="/"
+              element={<div className="p-10">Hero Section Coming Soon!</div>}
+            />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            {/* The bridge for Google login */}
+            <Route path="/social-auth" element={<SocialAuth />} />
           </Routes>
         </main>
       </div>
