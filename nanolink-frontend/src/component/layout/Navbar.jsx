@@ -17,6 +17,8 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+//   console.log(user)
+
   const handleLogout = () => {
     dispatch(logout());
     navigate("/login");
@@ -52,11 +54,14 @@ const Navbar = () => {
                   </Link>
                   <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
                     <img
-                      src={user?.avatar}
-                      alt="Profile"
-                      className="h-8 w-8 rounded-full border border-gray-200"
+                      // We use .replace to ensure we are using https
+                      src={user?.avatar?.replace("http://", "https://")}
+                      alt={user?.name}
+                      className="h-8 w-8 rounded-full border border-gray-200 object-cover"
+                      // IMPORTANT: Fallback if the URL is broken
                       onError={(e) => {
-                        e.target.src = "https://ui-avatars.com/api/?name=User";
+                        e.target.onerror = null;
+                        e.target.src = `https://ui-avatars.com/api/?name=${user?.name?.split(" ").join("+")}&background=random`;
                       }}
                     />
                     <button
