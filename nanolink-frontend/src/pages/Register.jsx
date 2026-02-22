@@ -1,11 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  authStart,
-  authSuccess,
-  authFailure,
-} from "../features/auth/authSlice";
+import { authStart, authFailure } from "../features/auth/authSlice";
 import { authService } from "../features/auth/authService";
 import toast from "react-hot-toast";
 import { UserPlus, Mail, Lock, User } from "lucide-react";
@@ -28,6 +24,7 @@ const Register = () => {
       // Since your backend requires email verification, we don't log them in yet
       toast.success(
         data.message || "Registration successful! Check your email.",
+        { duration: 8000 },
       );
       navigate("/login");
     } catch (err) {
