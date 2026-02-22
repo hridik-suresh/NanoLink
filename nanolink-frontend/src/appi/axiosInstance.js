@@ -25,7 +25,6 @@ API.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       // If the backend says unauthorized, clear storage and logout
       localStorage.removeItem("token");
-      
     }
     return Promise.reject(error);
   },
