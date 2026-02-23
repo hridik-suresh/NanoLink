@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Plus,
   Link as LinkIcon,
   MousePointer2,
   Copy,
-  ExternalLink,
   Loader2,
   Globe,
   Trash2,
   Edit3,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import API from "../api/axiosInstance";
 import toast from "react-hot-toast";
@@ -19,39 +19,42 @@ const Dashboard = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Form State
+  // --- 1. NEW STATE: Pagination ---
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   const [longUrl, setLongUrl] = useState("");
   const [customAlias, setCustomAlias] = useState("");
   const [isShortening, setIsShortening] = useState(false);
 
-  // Modal States
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedLink, setSelectedLink] = useState(null); // Stores the whole link object
+  const [selectedLink, setSelectedLink] = useState(null);
   const [newAlias, setNewAlias] = useState("");
 
   const fetchDashboardData = async () => {
     try {
-      const { data } = await API.get("/analytics/dashboard");
+      // --- 2. UPDATE: Pass pagination params to the request ---
+      const { data } = await API.get(
+        `/analytics/dashboard?page=${currentPage}&limit=${itemsPerPage}`,
+      );
       setStats(data.data);
     } catch (err) {
       console.log(err);
-
       toast.error("Failed to load dashboard data");
     } finally {
       setLoading(false);
     }
   };
 
+  // --- 3. UPDATE: Re-run effect when currentPage changes ---
   useEffect(() => {
     fetchDashboardData();
-  }, []);
+  }, [currentPage]);
 
   const handleShorten = async (e) => {
     e.preventDefault();
-    // console.log("Submitting:", { longUrl, customAlias });
     setIsShortening(true);
-
     try {
       await API.post("/url/create", {
         url: longUrl,
@@ -60,6 +63,7 @@ const Dashboard = () => {
       toast.success("Link created!");
       setLongUrl("");
       setCustomAlias("");
+      setCurrentPage(1); // Optional: Reset to page 1 to see the new link
       fetchDashboardData();
     } catch (err) {
       toast.error(err.response?.data?.message || "Error creating link");
@@ -68,7 +72,6 @@ const Dashboard = () => {
     }
   };
 
-  // --- Edit Logic ---
   const openEditModal = (e, link) => {
     e.stopPropagation();
     setSelectedLink(link);
@@ -87,7 +90,6 @@ const Dashboard = () => {
     }
   };
 
-  // --- Delete Logic ---
   const openDeleteModal = (e, id) => {
     e.stopPropagation();
     setSelectedLink({ _id: id });
@@ -101,8 +103,7 @@ const Dashboard = () => {
       setIsDeleteModalOpen(false);
       fetchDashboardData();
     } catch (err) {
-      console.log(err);
-
+      console.log(err)
       toast.error("Could not delete link");
     }
   };
@@ -178,7 +179,7 @@ const Dashboard = () => {
         </form>
       </div>
 
-      {/* Table */}
+      {/* Table with Pagination Footer */}
       <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
         <table className="w-full text-left">
           <thead className="bg-slate-50/50 border-b border-slate-100">
@@ -238,6 +239,35 @@ const Dashboard = () => {
             ))}
           </tbody>
         </table>
+
+        {/* --- 4. NEW: Pagination UI --- */}
+        {stats?.totalPages > 1 && (
+          <div className="flex items-center justify-between px-8 py-4 bg-slate-50/50 border-t border-slate-100">
+            <p className="text-sm text-slate-500">
+              Showing page{" "}
+              <span className="font-bold text-slate-900">{currentPage}</span> of{" "}
+              <span className="font-bold text-slate-900">
+                {stats.totalPages}
+              </span>
+            </p>
+            <div className="flex gap-2">
+              <button
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((prev) => prev - 1)}
+                className="flex items-center gap-1 px-4 py-2 rounded-xl bg-white border border-slate-200 text-sm font-bold hover:bg-slate-50 disabled:opacity-50 transition-all"
+              >
+                <ChevronLeft size={16} /> Previous
+              </button>
+              <button
+                disabled={currentPage === stats.totalPages}
+                onClick={() => setCurrentPage((prev) => prev + 1)}
+                className="flex items-center gap-1 px-4 py-2 rounded-xl bg-white border border-slate-200 text-sm font-bold hover:bg-slate-50 disabled:opacity-50 transition-all"
+              >
+                Next <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* --- EDIT MODAL --- */}
