@@ -10,7 +10,8 @@ import { authSuccess, logout } from "./features/auth/authSlice";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import ProtectedRoute from "./component/auth/ProtectedRoute";
-import Dashboard from "./pages/Dashboarg";
+import Dashboard from "./pages/Dashboard";
+import LinkDetails from "./pages/LinkDetails";
 
 function App() {
   const { user } = useSelector((state) => state.auth);
@@ -58,6 +59,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/link/:id"
+              element={
+                <ProtectedRoute>
+                  <LinkDetails />
                 </ProtectedRoute>
               }
             />
