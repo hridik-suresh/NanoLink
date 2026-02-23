@@ -63,7 +63,7 @@ function App() {
               }
             />
             <Route
-              path="/link/:id"
+              path="/dashboard/stats/:id"
               element={
                 <ProtectedRoute>
                   <LinkDetails />
