@@ -34,15 +34,15 @@ const Home = () => {
         customAlias: isLoggedIn ? customAlias || undefined : undefined,
       });
 
-      // --- FIX: Backend sends 'shortUrl' directly in the response root ---
+      // Backend sends 'shortUrl' directly in the response root ---
       if (data.success) {
         setShortenedUrl(data.shortUrl);
-        setLongUrl(""); // Optional: clear input after success
+        setLongUrl(""); //clear input after success
         setCustomAlias("");
         toast.success("Link shortened successfully!");
       }
     } catch (err) {
-      // --- FIX: Extract detailed backend error messages ---
+      // Extract detailed backend error messages ---
       const errorMsg = err.response?.data?.message || "Failed to shorten URL";
       toast.error(errorMsg);
       console.error("Shortening error:", err);
@@ -64,7 +64,7 @@ const Home = () => {
       {/* Hero Section */}
       <div className="relative overflow-hidden px-6 pt-16 pb-24 lg:px-8 lg:pt-32">
         {/* Background Decoration */}
-        <div className="absolute top-0 left-1/2 -z-10 h-[600px] w-[600px] -translate-x-1/2 opacity-10 sm:top-[-10%]">
+        <div className="absolute top-0 left-1/2 -z-10 h-150 w-150 -translate-x-1/2 opacity-10 sm:top-[-10%]">
           <div className="h-full w-full bg-blue-600 blur-[120px] rounded-full" />
         </div>
 
@@ -101,7 +101,7 @@ const Home = () => {
                 {isLoggedIn && (
                   <input
                     type="text"
-                    placeholder="Alias"
+                    placeholder="Alias(optional)"
                     className="md:w-32 rounded-2xl border-0 py-4 px-4 text-slate-900 ring-1 ring-inset ring-slate-100 focus:ring-2 focus:ring-blue-600 sm:text-sm outline-none"
                     value={customAlias}
                     onChange={(e) => setCustomAlias(e.target.value)}
@@ -111,7 +111,7 @@ const Home = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex items-center justify-center rounded-2xl bg-blue-600 px-8 py-4 text-sm font-bold text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 disabled:opacity-50 transition-all min-w-[120px]"
+                  className="flex items-center justify-center rounded-2xl bg-blue-600 px-8 py-4 text-sm font-bold text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 disabled:opacity-50 transition-all min-w-30"
                 >
                   {loading ? (
                     <Loader2 className="animate-spin h-5 w-5" />

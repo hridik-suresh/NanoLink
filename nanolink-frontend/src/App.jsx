@@ -13,6 +13,7 @@ import ProtectedRoute from "./component/auth/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import LinkDetails from "./pages/LinkDetails";
 import Home from "./pages/Home";
+import Footer from "./component/layout/Footer";
 
 function App() {
   const { user } = useSelector((state) => state.auth);
@@ -42,10 +43,7 @@ function App() {
         <main>
           <Routes>
             {/* Public Routes */}
-            <Route
-              path="/"
-              element={<Home />}
-            />
+            <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -73,6 +71,7 @@ function App() {
             />
           </Routes>
         </main>
+        <Footer />
       </div>
     </Router>
   );

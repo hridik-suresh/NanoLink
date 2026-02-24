@@ -17,7 +17,7 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-//   console.log(user)
+  //   console.log(user)
 
   const handleLogout = () => {
     dispatch(logout());
