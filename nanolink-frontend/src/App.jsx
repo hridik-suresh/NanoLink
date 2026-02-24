@@ -12,6 +12,7 @@ import ResetPassword from "./pages/ResetPassword";
 import ProtectedRoute from "./component/auth/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import LinkDetails from "./pages/LinkDetails";
+import Home from "./pages/Home";
 
 function App() {
   const { user } = useSelector((state) => state.auth);
@@ -43,7 +44,7 @@ function App() {
             {/* Public Routes */}
             <Route
               path="/"
-              element={<div className="p-10">Hero Section Coming Soon!</div>}
+              element={<Home />}
             />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
