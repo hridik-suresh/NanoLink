@@ -5,10 +5,13 @@ import {
   ExternalLink,
   Loader2,
   TrendingUp,
-  MousePointer2,
   Clock,
   Globe,
   Monitor,
+  ChevronLeft,
+  ChevronRight,
+  ShieldCheck,
+  Cpu,
 } from "lucide-react";
 import {
   XAxis,
@@ -27,12 +30,17 @@ const LinkDetails = () => {
   const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     const fetchDetails = async () => {
       try {
         setLoading(true);
-        const response = await API.get(`/analytics/url/${id}`);
+        // Matching your paginated controller route
+        const response = await API.get(
+          `/analytics/url/${id}?page=${currentPage}&limit=${itemsPerPage}`,
+        );
         setData(response?.data?.data);
       } catch (err) {
         console.error("Fetch Error:", err);
@@ -43,7 +51,7 @@ const LinkDetails = () => {
       }
     };
     fetchDetails();
-  }, [id, navigate]);
+  }, [id, navigate, currentPage]);
 
   if (loading)
     return (
@@ -52,21 +60,9 @@ const LinkDetails = () => {
       </div>
     );
 
-  if (!data || !data.urlDetails)
-    return (
-      <div className="flex h-screen flex-col items-center justify-center text-center">
-        <h2 className="text-2xl font-bold text-slate-800">No Data Found</h2>
-        <p className="text-slate-500 mb-4">
-          This link might not have any analytics yet.
-        </p>
-        <button
-          onClick={() => navigate("/dashboard")}
-          className="text-blue-600 font-bold hover:underline"
-        >
-          Go back to Dashboard
-        </button>
-      </div>
-    );
+  if (!data || !data.urlDetails) return null;
+
+  const { urlDetails, clickHistory, analytics, pagination } = data;
 
   return (
     <div className="mx-auto max-w-7xl p-6 lg:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -85,52 +81,42 @@ const LinkDetails = () => {
       {/* Hero Section */}
       <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-4xl font-black text-slate-900 truncate">
-              /{data?.urlDetails?.shortId}
-            </h1>
-          </div>
+          <h1 className="text-4xl font-black text-slate-900 truncate mb-2">
+            /{urlDetails.shortId}
+          </h1>
           <a
-            href={data?.urlDetails?.originalUrl}
+            href={urlDetails.originalUrl}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-2 text-slate-400 hover:text-blue-500 break-all transition-colors"
+            className="flex items-center gap-2 text-slate-400 hover:text-blue-500 break-all transition-colors font-medium"
           >
-            {data?.urlDetails?.originalUrl} <ExternalLink size={14} />
+            {urlDetails.originalUrl} <ExternalLink size={14} />
           </a>
         </div>
 
-        <div className="flex gap-4">
-          <div className="bg-white px-8 py-5 rounded-3xl border border-slate-200 shadow-sm text-center">
-            <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">
-              Total Clicks
-            </p>
-            <p className="text-4xl font-black text-blue-600">
-              {data?.urlDetails?.clicks}
-            </p>
-          </div>
+        <div className="bg-white px-8 py-5 rounded-3xl border border-slate-200 shadow-sm text-center">
+          <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">
+            Total Clicks
+          </p>
+          <p className="text-4xl font-black text-blue-600">
+            {urlDetails.clicks}
+          </p>
         </div>
       </div>
 
-      {/* Main Chart Section */}
+      {/* Chart Section */}
       <div className="mb-8 rounded-3xl bg-white p-8 shadow-sm border border-slate-200">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-50 rounded-xl text-blue-600">
-              <TrendingUp size={20} />
-            </div>
-            <h2 className="text-xl font-bold text-slate-800">
-              Click History (7 Days)
-            </h2>
+        <div className="flex items-center gap-3 mb-8">
+          <div className="p-2 bg-blue-50 rounded-xl text-blue-600">
+            <TrendingUp size={20} />
           </div>
-          <div className="text-sm font-medium text-slate-400 bg-slate-50 px-4 py-1.5 rounded-full">
-            Daily Breakdown
-          </div>
+          <h2 className="text-xl font-bold text-slate-800">
+            Activity (Last 7 Days)
+          </h2>
         </div>
-
-        <div className="h-87.5 w-full">
+        <div className="h-80 w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data?.clickHistory}>
+            <AreaChart data={clickHistory}>
               <defs>
                 <linearGradient id="colorClicks" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#2563eb" stopOpacity={0.15} />
@@ -160,11 +146,6 @@ const LinkDetails = () => {
                   border: "none",
                   boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)",
                 }}
-                cursor={{
-                  stroke: "#2563eb",
-                  strokeWidth: 2,
-                  strokeDasharray: "5 5",
-                }}
               />
               <Area
                 type="monotone"
@@ -179,20 +160,26 @@ const LinkDetails = () => {
         </div>
       </div>
 
-      {/* Lower Section: Recent Clicks List */}
+      {/* Detailed Analytics Table */}
       <div className="rounded-3xl bg-white border border-slate-200 shadow-sm overflow-hidden">
-        <div className="p-8 border-b border-slate-100 flex items-center gap-3">
-          <div className="p-2 bg-purple-50 rounded-xl text-purple-600">
-            <Clock size={20} />
+        <div className="p-8 border-b border-slate-100 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-purple-50 rounded-xl text-purple-600">
+              <Clock size={20} />
+            </div>
+            <h2 className="text-xl font-bold text-slate-800">Detailed Log</h2>
           </div>
-          <h2 className="text-xl font-bold text-slate-800">Recent Activity</h2>
+          <span className="text-sm font-medium text-slate-400">
+            Showing {analytics.length} results
+          </span>
         </div>
+
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead className="bg-slate-50/50">
               <tr>
                 <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">
-                  Device / Browser
+                  Visitor Info
                 </th>
                 <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">
                   Location
@@ -203,38 +190,41 @@ const LinkDetails = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {data?.recentClicks?.length > 0 ? (
-                data.recentClicks.map((click) => (
+              {analytics.length > 0 ? (
+                analytics.map((click) => (
                   <tr
                     key={click._id}
                     className="hover:bg-slate-50/50 transition-colors"
                   >
                     <td className="px-8 py-5">
-                      <div className="flex items-center gap-3">
-                        <Monitor size={16} className="text-slate-400" />
-                        <span className="font-bold text-slate-700">
-                          {click.device || "Unknown"}
-                        </span>
-                        <span className="text-slate-400 text-sm">
-                          • {click.browser || "Browser"}
-                        </span>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <Monitor size={14} className="text-slate-400" />
+                          <span className="font-bold text-slate-700 text-sm">
+                            {click.device} • {click.browser}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-4 text-xs text-slate-400">
+                          <span className="flex items-center gap-1">
+                            <Cpu size={12} /> {click.os || "Unknown OS"}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <ShieldCheck size={12} />{" "}
+                            {click.ipAddress || "0.0.0.0"}
+                          </span>
+                        </div>
                       </div>
                     </td>
                     <td className="px-8 py-5">
-                      <div className="flex items-center gap-2 text-slate-600 font-medium">
+                      <div className="flex items-center gap-2 text-slate-600 font-medium text-sm">
                         <Globe size={16} className="text-slate-400" />
                         {click.city
                           ? `${click.city}, ${click.country}`
-                          : "Location Hidden"}
+                          : "Unknown Location"}
                       </div>
                     </td>
                     <td className="px-8 py-5 text-right text-sm text-slate-500 font-medium">
-                      {new Date(click.createdAt).toLocaleString(undefined, {
-                        month: "short",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+                      {new Date(click.createdAt).toLocaleString()}
                     </td>
                   </tr>
                 ))
@@ -244,12 +234,37 @@ const LinkDetails = () => {
                     colSpan="3"
                     className="px-8 py-10 text-center text-slate-400 italic"
                   >
-                    No recent clicks recorded yet.
+                    No activity yet.
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Pagination Controls */}
+        <div className="px-8 py-4 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
+          <p className="text-sm text-slate-500 font-medium">
+            Page{" "}
+            <span className="text-slate-900">{pagination.currentPage}</span> of{" "}
+            <span className="text-slate-900">{pagination.totalPages}</span>
+          </p>
+          <div className="flex gap-2">
+            <button
+              disabled={pagination.currentPage === 1}
+              onClick={() => setCurrentPage((prev) => prev - 1)}
+              className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 transition-colors"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <button
+              disabled={!pagination.hasNextPage}
+              onClick={() => setCurrentPage((prev) => prev + 1)}
+              className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 transition-colors"
+            >
+              <ChevronRight size={20} />
+            </button>
+          </div>
         </div>
       </div>
     </div>

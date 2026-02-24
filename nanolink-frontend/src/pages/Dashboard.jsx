@@ -100,10 +100,13 @@ const Dashboard = () => {
     try {
       await API.delete(`/url/${selectedLink._id}`);
       toast.success("Link deleted successfully");
+      if (stats?.links?.length === 1 && currentPage > 1) {
+        setCurrentPage((prev) => prev - 1); // Go back a page if the user deleted the last item on the current page
+      }
       setIsDeleteModalOpen(false);
       fetchDashboardData();
     } catch (err) {
-      console.log(err)
+      console.log(err);
       toast.error("Could not delete link");
     }
   };
