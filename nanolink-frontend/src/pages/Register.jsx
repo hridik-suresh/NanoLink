@@ -30,6 +30,7 @@ const Register = () => {
     } catch (err) {
       const msg = err.response?.data?.message || "Registration failed";
       dispatch(authFailure(msg));
+      console.log(err);
       toast.error(msg);
     }
   };
