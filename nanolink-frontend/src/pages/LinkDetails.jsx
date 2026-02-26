@@ -12,6 +12,8 @@ import {
   ChevronRight,
   ShieldCheck,
   Cpu,
+  Copy,
+  Check,
 } from "lucide-react";
 import {
   XAxis,
@@ -31,6 +33,7 @@ const LinkDetails = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [copied, setCopied] = useState(false);
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -64,6 +67,19 @@ const LinkDetails = () => {
 
   const { urlDetails, clickHistory, analytics, pagination } = data;
 
+  const handleCopy = async () => {
+    const fullUrl = `${import.meta.env.VITE_BACKEND_URL}/${urlDetails.shortId}`;
+    try {
+      await navigator.clipboard.writeText(fullUrl);
+      setCopied(true);
+      toast.success("Link copied to clipboard!");
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.log(err);
+      toast.error("Failed to copy link");
+    }
+  };
+
   return (
     <div className="mx-auto max-w-7xl p-6 lg:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Header Navigation */}
@@ -81,9 +97,23 @@ const LinkDetails = () => {
       {/* Hero Section */}
       <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="flex-1 min-w-0">
-          <h1 className="text-4xl font-black text-slate-900 truncate mb-2">
-            /{urlDetails.shortId}
-          </h1>
+          <div className="flex items-center gap-3 mb-2 group/title">
+            <h1 className="text-4xl font-black text-slate-900 truncate">
+              /{urlDetails.shortId}
+            </h1>
+            <button
+              onClick={handleCopy}
+              className={`p-2 rounded-xl border transition-all duration-200 ${
+                copied
+                  ? "bg-green-50 border-green-200 text-green-600"
+                  : "bg-white border-slate-200 text-slate-400 hover:text-blue-600 hover:border-blue-200 shadow-sm"
+              }`}
+              title="Copy short link"
+            >
+              {copied ? <Check size={20} /> : <Copy size={20} />}
+            </button>
+          </div>
+
           <a
             href={urlDetails.originalUrl}
             target="_blank"
