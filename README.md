@@ -21,6 +21,7 @@ NanoLink is a high-performance, full-stack URL shortening service designed with 
 ### 🛡️ Secure User Flow & State
 * **Redux Toolkit**: Centralized state management for predictable data flow across the dashboard.
 * **Gmail OAuth 2.0 Integration**: Reliable email verification delivery using the official `googleapis` library.
+* **OAuth 2.0 (Google Login)**: Seamless social authentication integrated via `Passport.js`.
 * **JWT Security**: Stateless authentication with encrypted session persistence.
 
 ### 📱 Responsive & Professional UX
